@@ -3,6 +3,7 @@ const {
   submitAnswer,
   getResult,
   getAllResults,
+  checkExamResult,
 } = require("../controllers/resultController");
 const authMiddleware = require("../middlewares/authMiddleware");
 const adminMiddleware = require("../middlewares/adminMiddleware");
@@ -17,5 +18,7 @@ router.get("/:userId", authMiddleware, getResult);
 
 // Endpoint untuk admin melihat semua hasil
 router.get("/admin/all", authMiddleware, adminMiddleware, getAllResults);
+
+router.get("/:userId/:examCode", authMiddleware, checkExamResult);
 
 module.exports = router;

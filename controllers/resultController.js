@@ -119,4 +119,48 @@ const getAllResults = async (req, res) => {
   }
 };
 
-module.exports = { submitAnswer, getResult, getAllResults };
+const checkExamResult = async (req, res) => {
+  try {
+    const { userId, examCode } = req.params;
+
+    // Pertama, cari exam berdasarkan kode
+    const exam = await Exam.findOne({ code: examCode });
+    if (!exam) {
+      return res.status(404).json({
+        message: "Exam not found",
+        canTakeExam: false,
+      });
+    }
+
+    // Cari apakah user sudah pernah mengerjakan ujian ini
+    const existingResult = await Result.findOne({
+      userId,
+      exam: exam._id,
+    });
+
+    if (existingResult) {
+      return res.status(200).json({
+        message: "Exam already taken",
+        canTakeExam: false,
+        existingResult: {
+          totalScore: existingResult.totalScore,
+          createdAt: existingResult.createdAt,
+        },
+      });
+    }
+
+    // Jika belum pernah mengerjakan
+    return res.status(200).json({
+      message: "Exam can be taken",
+      canTakeExam: true,
+      examId: exam._id,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+      canTakeExam: false,
+    });
+  }
+};
+
+module.exports = { submitAnswer, getResult, getAllResults, checkExamResult };
